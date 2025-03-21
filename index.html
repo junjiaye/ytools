@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YTools - 开发者工具集</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-light: #47a9ff;
+            --background-color: #f5f5f7;
+            --card-background: #ffffff;
+            --text-color: #1d1d1f;
+            --secondary-text: #86868b;
+            --border-color: #d2d2d7;
+            --hover-color: #0077ed;
+            --box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            --nav-height: 64px;
+            --border-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+            --header-bg: rgba(255, 255, 255, 0.8);
+            --search-bg: rgba(142, 142, 147, 0.12);
+            --search-focus-bg: rgba(142, 142, 147, 0.16);
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #0a84ff;
+            --primary-light: #5eb9ff;
+            --background-color: #1a1a1a;
+            --card-background: #2c2c2e;
+            --text-color: #f5f5f7;
+            --secondary-text: #aeaeb2;
+            --border-color: #3a3a3c;
+            --hover-color: #409cff;
+            --box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            --header-bg: rgba(40, 40, 40, 0.8);
+            --search-bg: rgba(255, 255, 255, 0.12);
+            --search-focus-bg: rgba(255, 255, 255, 0.16);
+        }
+
+        .theme-transition {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background-color: var(--header-bg);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+            height: var(--nav-height);
+            display: flex;
+            align-items: center;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+        }
+
+        .logo-text {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-color);
+            letter-spacing: -0.02em;
+        }
+
+        .nav {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .nav-item {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: var(--transition);
+        }
+
+        .nav-item:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .search-box {
+            position: relative;
+            margin-left: auto;
+            margin-right: 24px;
+        }
+
+        .search-input {
+            padding: 10px 36px 10px 16px;
+            border: none;
+            border-radius: 8px;
+            width: 240px;
+            font-size: 14px;
+            background-color: var(--search-bg);
+            color: var(--text-color);
+            transition: var(--transition);
+        }
+
+        .search-input:focus {
+            background-color: var(--search-focus-bg);
+            outline: none;
+            width: 280px;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary-text);
+            width: 16px;
+            height: 16px;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--search-bg);
+        }
+
+        [data-theme="dark"] .theme-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .hero-section {
+            text-align: center;
+            padding: 120px 24px 40px;
+        }
+
+        .hero-title {
+            font-size: 48px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+            background: linear-gradient(90deg, #0071e3, #47a9ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 20px;
+            font-weight: 400;
+            color: var(--secondary-text);
+            max-width: 600px;
+            margin: 0 auto 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .category-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 32px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            scrollbar-width: none;
+        }
+
+        .category-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-tab {
+            padding: 10px 20px;
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-weight: 500;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .category-tab.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .category-tab:hover:not(.active) {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 80px;
+        }
+
+        .tool-card {
+            background: var(--card-background);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            text-decoration: none;
+            color: var(--text-color);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--box-shadow);
+        }
+
+        .tool-icon {
+            padding: 24px 24px 0;
+        }
+
+        .tool-icon svg {
+            width: 48px;
+            height: 48px;
+        }
+
+        .tool-content {
+            padding: 20px 24px 24px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tool-content h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        .tool-content p {
+            font-size: 14px;
+            color: var(--secondary-text);
+            margin: 0;
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+
+        .tool-card::after {
+            content: "";
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-color);
+            opacity: 0.1;
+            border-radius: 50%;
+            top: 28px;
+            left: 28px;
+            z-index: 0;
+        }
+
+        footer {
+            background-color: var(--card-background);
+            padding: 40px 0;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .footer-text {
+            color: var(--secondary-text);
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 36px;
+            }
+            
+            .hero-subtitle {
+                font-size: 18px;
+            }
+
+            .header-content {
+                padding: 0 16px;
+            }
+            
+            .nav {
+                display: none;
+            }
+
+            .search-box {
+                margin-right: 16px;
+            }
+
+            .search-input {
+                width: 180px;
+            }
+
+            .search-input:focus {
+                width: 200px;
+            }
+
+            .container {
+                padding: 0 16px;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 搜索框相关样式增强 */
+        .search-box {
+            position: relative;
+            margin-left: auto;
+            margin-right: 24px;
+        }
+
+        .search-clear {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.7;
+            transition: var(--transition);
+        }
+
+        .search-clear:hover {
+            opacity: 1;
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .search-clear svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* 当搜索框有内容时隐藏搜索图标显示清除按钮 */
+        .search-input:not(:placeholder-shown) + .search-icon {
+            display: none;
+        }
+
+        /* 搜索匹配的高亮效果 */
+        .search-match {
+            animation: highlight 0.8s ease;
+        }
+
+        @keyframes highlight {
+            0% { 
+                box-shadow: 0 0 0 2px var(--primary-color);
+                transform: translateY(-4px);
+            }
+            100% { 
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+                transform: translateY(0);
+            }
+        }
+
+        /* 无搜索结果提示 */
+        .no-results {
+            grid-column: 1 / -1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 0;
+            color: var(--secondary-text);
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .no-results svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 16px;
+            opacity: 0.7;
+        }
+
+        .no-results p {
+            margin-bottom: 16px;
+            font-size: 16px;
+        }
+
+        .clear-search {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .clear-search:hover {
+            background-color: var(--hover-color);
+            transform: translateY(-1px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* 确保SVG图标跟随主题色变化 */
+        [data-theme="dark"] .search-icon path,
+        [data-theme="dark"] .search-clear svg path {
+            stroke: var(--secondary-text);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="index.html" class="logo-container">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L4 6V18L12 22L20 18V6L12 2Z" stroke="#0071e3" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M12 11L4 6M12 11V22M12 11L20 6" stroke="#0071e3" stroke-width="2" stroke-linejoin="round"/>
+                </svg>
+                <span class="logo-text">YTools  </span>
+            </a>
+            <nav class="nav">
+                <a href="index.html" class="nav-item">首页</a>
+                <a href="#" class="nav-item">关于</a>
+            </nav>
+            <div class="search-box">
+                <input type="text" class="search-input" placeholder="搜索工具...">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke="#86868b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M21 21L16.65 16.65" stroke="#86868b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <button class="theme-toggle">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16Z" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 2V4" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 20V22" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M4.93 4.93L6.34 6.34" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M17.66 17.66L19.07 19.07" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 12H4" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M20 12H22" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M6.34 17.66L4.93 19.07" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M19.07 4.93L17.66 6.34" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <section class="hero-section">
+        <h1 class="hero-title">YTools 开发者工具集</h1>
+        <p class="hero-subtitle">一站式高效工具集，助您快速解决开发难题，提升效率</p>
+    </section>
+
+    <main class="container">
+        <!-- <div class="category-tabs">
+            <button class="category-tab active">全部</button>
+     
+        </div> -->
+        <div class="tools-grid">
+            <a href="tools/text-diff.html" class="tool-card">
+                <div class="tool-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M16 18L22 12L16 6" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 6L2 12L8 18" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="tool-content">
+                    <h2>文本对比</h2>
+                    <p>快速比较两段文本的差异，支持逐行对比和高亮显示</p>
+                </div>
+            </a>
+            <a href="tools/json-tools.html" class="tool-card">
+                <div class="tool-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 7V4H20V7" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9 20H15" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 4V20" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="tool-content">
+                    <h2>JSON 工具</h2>
+                    <p>JSON 格式化、验证、压缩、转换等功能</p>
+                </div>
+            </a>
+            <a href="tools/test-data.html" class="tool-card">
+                <div class="tool-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 16V12M12 8H12.01M2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12Z" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="tool-content">
+                    <h2>测试数据生成</h2>
+                    <p>生成各类测试数据，支持自定义规则和格式</p>
+                </div>
+            </a>
+            <a href="tools/qr-code.html" class="tool-card">
+                <div class="tool-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5 5H7.5V7.5H5V5Z" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M16.5 5H19V7.5H16.5V5Z" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M5 16.5H7.5V19H5V16.5Z" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M3 3H10V10H3V3Z" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M14 3H21V10H14V3Z" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M3 14H10V21H3V14Z" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M14 18H15.5V21H14V18Z" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M19.5 14H21V21H19.5V14Z" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M14 14H16.5V16.5H14V14Z" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="tool-content">
+                    <h2>二维码生成</h2>
+                    <p>生成自定义内容的二维码，支持样式定制</p>
+                </div>
+            </a>
+            <a href="tools/unit-converter.html" class="tool-card">
+                <div class="tool-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 4V20M6 4V20M12 9V20M12 4V6" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="tool-content">
+                    <h2>单位换算</h2>
+                    <p>常用单位换算工具，支持多种计量单位</p>
+                </div>
+            </a>
+            <a href="tools/word-counter.html" class="tool-card">
+                <div class="tool-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 7H20" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M4 12H20" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M4 17H20" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="tool-content">
+                    <h2>字数统计</h2>
+                    <p>统计文本字数、字符数、行数等信息</p>
+                </div>
+            </a>
+            <!-- <a href="tools/code-formatter.html" class="tool-card">
+                <div class="tool-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 3L4 7L8 11" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M16 3L20 7L16 11" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M4 15L20 15" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M4 19L12 19" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="tool-content">
+                    <h2>代码格式化</h2>
+                    <p>支持多种编程语言的代码美化和压缩</p>
+                </div>
+            </a> -->
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p class="footer-text">© 2024 YTools. 一站式高效开发工具集。</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 切换分类标签
+            const tabs = document.querySelectorAll('.category-tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // 主题切换功能
+            const themeToggle = document.querySelector('.theme-toggle');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            // 初始化主题
+            function initTheme() {
+                // 检查本地存储的主题偏好
+                const savedTheme = localStorage.getItem('ytools-theme');
+                
+                if (savedTheme) {
+                    // 应用保存的主题偏好
+                    document.documentElement.setAttribute('data-theme', savedTheme);
+                    updateThemeIcon(savedTheme);
+                } else if (prefersDarkScheme.matches) {
+                    // 如果用户系统偏好深色模式，自动应用深色主题
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    updateThemeIcon('dark');
+                }
+            }
+
+            // 切换主题
+            function toggleTheme() {
+                const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                
+                // 应用新主题
+                document.documentElement.setAttribute('data-theme', newTheme);
+                
+                // 保存主题偏好到本地存储
+                localStorage.setItem('ytools-theme', newTheme);
+                
+                // 更新主题图标
+                updateThemeIcon(newTheme);
+                
+                // 添加过渡动画效果
+                document.documentElement.classList.add('theme-transition');
+                setTimeout(() => {
+                    document.documentElement.classList.remove('theme-transition');
+                }, 300);
+            }
+
+            // 更新主题切换按钮图标
+            function updateThemeIcon(theme) {
+                if (theme === 'dark') {
+                    themeToggle.innerHTML = `
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z" stroke="#f5f5f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    `;
+                } else {
+                    themeToggle.innerHTML = `
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16Z" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 2V4" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 20V22" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M4.93 4.93L6.34 6.34" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M17.66 17.66L19.07 19.07" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2 12H4" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M20 12H22" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M6.34 17.66L4.93 19.07" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M19.07 4.93L17.66 6.34" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    `;
+                }
+            }
+
+            // 初始化主题
+            initTheme();
+
+            // 监听主题切换按钮点击事件
+            themeToggle.addEventListener('click', toggleTheme);
+
+            // 监听系统主题偏好变化
+            prefersDarkScheme.addEventListener('change', (e) => {
+                // 只有在用户没有手动设置主题的情况下，才跟随系统变化
+                if (!localStorage.getItem('ytools-theme')) {
+                    const newTheme = e.matches ? 'dark' : 'light';
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                    updateThemeIcon(newTheme);
+                }
+            });
+
+            // 搜索功能
+            const searchInput = document.querySelector('.search-input');
+            const toolCards = document.querySelectorAll('.tool-card');
+            const toolsGrid = document.querySelector('.tools-grid');
+
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+                let matchCount = 0;
+                
+                // 如果搜索框为空，显示所有工具卡片并重置类别选择
+                if (!searchTerm) {
+                    toolCards.forEach(card => {
+                        card.style.display = 'flex';
+                    });
+                    
+                    // 重置分类标签为"全部"
+                    document.querySelectorAll('.category-tab').forEach(tab => {
+                        tab.classList.remove('active');
+                    });
+                    document.querySelector('.category-tab:first-child').classList.add('active');
+                    
+                    // 移除没有结果的提示（如果存在）
+                    const noResultsEl = document.getElementById('no-search-results');
+                    if (noResultsEl) {
+                        noResultsEl.remove();
+                    }
+                    
+                    return;
+                }
+                
+                // 搜索逻辑实现
+                toolCards.forEach(card => {
+                    const title = card.querySelector('h2').textContent.toLowerCase();
+                    const description = card.querySelector('p').textContent.toLowerCase();
+                    
+                    if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                        card.style.display = 'flex';
+                        // 添加高亮效果动画
+                        card.classList.add('search-match');
+                        setTimeout(() => {
+                            card.classList.remove('search-match');
+                        }, 800);
+                        matchCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                
+                // 显示没有搜索结果的提示
+                const existingNoResults = document.getElementById('no-search-results');
+                if (matchCount === 0) {
+                    if (!existingNoResults) {
+                        const noResults = document.createElement('div');
+                        noResults.id = 'no-search-results';
+                        noResults.className = 'no-results';
+                        noResults.innerHTML = `
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10 10L14 14M10 14L14 10" stroke="#86868b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke="#86868b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M21 21L16.65 16.65" stroke="#86868b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <p>没有找到匹配 "${searchTerm}" 的工具</p>
+                            <button class="clear-search">清除搜索</button>
+                        `;
+                        toolsGrid.appendChild(noResults);
+                        
+                        // 添加清除搜索按钮的点击事件
+                        noResults.querySelector('.clear-search').addEventListener('click', function() {
+                            searchInput.value = '';
+                            searchInput.dispatchEvent(new Event('input'));
+                            searchInput.focus();
+                        });
+                    } else {
+                        existingNoResults.querySelector('p').textContent = `没有找到匹配 "${searchTerm}" 的工具`;
+                    }
+                } else if (existingNoResults) {
+                    existingNoResults.remove();
+                }
+            });
+
+            // 添加搜索快捷键
+            document.addEventListener('keydown', function(e) {
+                // 按下 / 键快速聚焦到搜索框（常见搜索快捷键）
+                if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+                    e.preventDefault();
+                    searchInput.focus();
+                }
+                
+                // ESC键清除搜索
+                if (e.key === 'Escape' && document.activeElement === searchInput) {
+                    searchInput.value = '';
+                    searchInput.dispatchEvent(new Event('input'));
+                    searchInput.blur();
+                }
+            });
+
+            // 添加搜索框清除按钮
+            const searchBox = document.querySelector('.search-box');
+            const clearButton = document.createElement('button');
+            clearButton.className = 'search-clear';
+            clearButton.innerHTML = `
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="#86868b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            `;
+            clearButton.style.display = 'none';
+            searchBox.appendChild(clearButton);
+
+            // 监听搜索框输入，显示/隐藏清除按钮
+            searchInput.addEventListener('input', function() {
+                clearButton.style.display = this.value ? 'flex' : 'none';
+            });
+
+            // 清除按钮点击事件
+            clearButton.addEventListener('click', function() {
+                searchInput.value = '';
+                searchInput.dispatchEvent(new Event('input'));
+                this.style.display = 'none';
+                searchInput.focus();
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试数据生成 - YTools</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-light: #47a9ff;
+            --background-color: #f5f5f7;
+            --card-background: #ffffff;
+            --text-color: #1d1d1f;
+            --secondary-text: #86868b;
+            --border-color: #d2d2d7;
+            --hover-color: #0077ed;
+            --box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            --nav-height: 64px;
+            --border-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+            height: var(--nav-height);
+            display: flex;
+            align-items: center;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+        }
+
+        .logo-text {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-color);
+            letter-spacing: -0.02em;
+        }
+
+        .nav {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .nav-item {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: var(--transition);
+        }
+
+        .nav-item:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: calc(var(--nav-height) + 48px) auto 48px;
+            padding: 0 24px;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 32px;
+        }
+
+        .page-title {
+            grid-column: 1 / -1;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            letter-spacing: -0.02em;
+        }
+
+        .config-panel {
+            background: var(--card-background);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            height: fit-content;
+            position: sticky;
+            top: calc(var(--nav-height) + 24px);
+        }
+
+        .config-section {
+            margin-bottom: 24px;
+        }
+
+        .config-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .config-section h2 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-color);
+            letter-spacing: -0.01em;
+        }
+
+        .config-item {
+            margin-bottom: 16px;
+        }
+
+        .config-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .config-item label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--text-color);
+        }
+
+        .config-item input[type="number"],
+        .config-item input[type="text"],
+        .config-item input[type="date"],
+        .config-item select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: var(--card-background);
+            transition: var(--transition);
+        }
+
+        .config-item input[type="number"]:focus,
+        .config-item input[type="text"]:focus,
+        .config-item input[type="date"]:focus,
+        .config-item select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.2);
+        }
+
+        .config-item input[type="checkbox"] {
+            margin-right: 8px;
+            width: 16px;
+            height: 16px;
+            accent-color: var(--primary-color);
+        }
+
+        .checkbox-wrap {
+            display: flex;
+            align-items: center;
+        }
+
+        .preview-panel {
+            background: var(--card-background);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .preview-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        .preview-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .button {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .button svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .button-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .button-primary:hover {
+            background-color: var(--hover-color);
+            transform: translateY(-1px);
+        }
+
+        .button-secondary {
+            background-color: rgba(0, 0, 0, 0.05);
+            color: var(--text-color);
+        }
+
+        .button-secondary:hover {
+            background-color: rgba(0, 0, 0, 0.08);
+            transform: translateY(-1px);
+        }
+
+        .preview-content {
+            flex-grow: 1;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: "SF Mono", SFMono-Regular, ui-monospace, Menlo, Monaco, Consolas, monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow: auto;
+            white-space: pre-wrap;
+            color: var(--text-color);
+            background-color: rgba(0, 0, 0, 0.02);
+            min-height: 400px;
+            position: relative;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            z-index: 10;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 14px;
+            color: var(--text-color);
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--secondary-text);
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            color: var(--secondary-text);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background-color: #323232;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background-color: #34c759;
+        }
+
+        .toast.error {
+            background-color: #ff3b30;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                padding: 0 16px;
+                margin-top: calc(var(--nav-height) + 24px);
+            }
+
+            .config-panel {
+                position: static;
+            }
+
+            .header-content {
+                padding: 0 16px;
+            }
+            
+            .nav {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="../index.html" class="logo-container">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L4 6V18L12 22L20 18V6L12 2Z" stroke="#0071e3" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M12 11L4 6M12 11V22M12 11L20 6" stroke="#0071e3" stroke-width="2" stroke-linejoin="round"/>
+                </svg>
+                <span class="logo-text">YTools</span>
+            </a>
+            <nav class="nav">
+                <a href="../index.html" class="nav-item">首页</a>
+                <a href="#" class="nav-item">文档</a>
+                <a href="#" class="nav-item">关于</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <h1 class="page-title">测试数据生成</h1>
+        <div class="config-panel">
+            <div class="config-section">
+                <h2>数据类型</h2>
+                <div class="config-item">
+                    <label for="dataType">选择类型</label>
+                    <select id="dataType" required>
+                        <option value="">请选择数据类型</option>
+                        <option value="person" selected>个人信息</option>
+                        <option value="address">地址信息</option>
+                        <option value="datetime">时间日期</option>
+                        <option value="number">数值范围</option>
+                        <option value="custom">自定义规则</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="config-section">
+                <h2>生成配置</h2>
+                <div class="config-item">
+                    <label for="count">生成数量</label>
+                    <input type="number" id="count" value="10" min="1" max="1000">
+                </div>
+                <div id="typeOptions"></div>
+            </div>
+
+            <div class="config-section">
+                <button class="button button-primary" id="generateBtn">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 12L13 4V8.5C6 9.5 3 14 2 19C5 15.5 8 14 13 14V18L21 12Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    生成数据
+                </button>
+            </div>
+        </div>
+
+        <div class="preview-panel">
+            <div class="preview-header">
+                <h2>预览结果</h2>
+                <div class="preview-actions">
+                    <button class="button button-secondary" onclick="copyData()">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 4H18V16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M16 6H6V20H16V6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        复制
+                    </button>
+                    <button class="button button-primary" onclick="exportData()">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 13V21M12 21L8 17M12 21L16 17" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M20 6C20 3.79086 18.2091 2 16 2H8C5.79086 2 4 3.79086 4 6V18C4 20.2091 5.79086 22 8 22H9M15 22H16" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        导出
+                    </button>
+                </div>
+            </div>
+            <div id="preview" class="preview-content">
+                <div class="empty-state">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 9V11M12 15H12.01M5.07183 19H18.9282C20.4678 19 21.4301 17.3333 20.6603 16L13.7321 4C12.9623 2.66667 11.0378 2.66667 10.268 4L3.33978 16C2.56998 17.3333 3.53223 19 5.07183 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <p>请点击"生成数据"按钮创建测试数据</p>
+                </div>
+            </div>
+            <div class="loading-overlay" id="loadingOverlay">
+                <div class="loader"></div>
+                <p class="loading-text">正在生成数据...</p>
+            </div>
+        </div>
+    </main>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        function generateData() {
+            // 获取最新的元素引用
+            const generateButton = document.getElementById('generateBtn');
+            const previewElement = document.getElementById('preview');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            
+            // 显示加载状态
+            generateButton.disabled = true;
+            loadingOverlay.classList.add('active');
+            
+            // 使用setTimeout来模拟异步操作，避免UI卡顿
+            setTimeout(() => {
+                try {
+                    const type = document.getElementById('dataType').value;
+                    const count = parseInt(document.getElementById('count').value);
+                    let result = [];
+
+                    for (let i = 0; i < count; i++) {
+                        let item = {};
+                        switch (type) {
+                            case 'person':
+                                if (document.getElementById('includeName').checked) {
+                                    item.name = generateRandomName();
+                                }
+                                if (document.getElementById('includePhone').checked) {
+                                    item.phone = generateRandomPhone();
+                                }
+                                if (document.getElementById('includeEmail').checked) {
+                                    item.email = generateRandomEmail();
+                                }
+                                if (document.getElementById('includeId').checked) {
+                                    item.id = generateRandomId();
+                                }
+                                break;
+                            case 'address':
+                                if (document.getElementById('includeProvince').checked) {
+                                    item.province = generateRandomProvince();
+                                }
+                                if (document.getElementById('includeCity').checked) {
+                                    item.city = generateRandomCity();
+                                }
+                                if (document.getElementById('includeStreet').checked) {
+                                    item.street = generateRandomStreet();
+                                }
+                                if (document.getElementById('includePostcode').checked) {
+                                    item.postcode = generateRandomPostcode();
+                                }
+                                break;
+                            case 'datetime':
+                                item.datetime = generateRandomDate(
+                                    document.getElementById('startDate').value,
+                                    document.getElementById('endDate').value,
+                                    document.getElementById('format').value
+                                );
+                                break;
+                            case 'number':
+                                item.value = generateRandomNumber(
+                                    parseFloat(document.getElementById('min').value),
+                                    parseFloat(document.getElementById('max').value),
+                                    parseInt(document.getElementById('decimal').value)
+                                );
+                                break;
+                            case 'custom':
+                                item.value = generateCustomPattern(document.getElementById('pattern').value);
+                                break;
+                        }
+                        result.push(item);
+                    }
+
+                    previewElement.innerHTML = '';
+                    previewElement.textContent = JSON.stringify(result, null, 2);
+                    showToast('数据生成成功！', 'success');
+                } catch (error) {
+                    previewElement.textContent = `生成数据时出错: ${error.message}`;
+                    showToast('生成数据失败，请检查配置', 'error');
+                } finally {
+                    // 恢复按钮状态
+                    generateButton.disabled = false;
+                    loadingOverlay.classList.remove('active');
+                }
+            }, 500);
+        }
+
+        const typeConfigs = {
+            person: [
+                { id: 'includeName', label: '包含姓名', type: 'checkbox', checked: true },
+                { id: 'includePhone', label: '包含手机号', type: 'checkbox', checked: true },
+                { id: 'includeEmail', label: '包含邮箱', type: 'checkbox', checked: true },
+                { id: 'includeId', label: '包含身份证号', type: 'checkbox', checked: false }
+            ],
+            address: [
+                { id: 'includeProvince', label: '包含省份', type: 'checkbox', checked: true },
+                { id: 'includeCity', label: '包含城市', type: 'checkbox', checked: true },
+                { id: 'includeStreet', label: '包含街道', type: 'checkbox', checked: true },
+                { id: 'includePostcode', label: '包含邮编', type: 'checkbox', checked: false }
+            ],
+            datetime: [
+                { id: 'startDate', label: '开始日期', type: 'date', value: '2020-01-01' },
+                { id: 'endDate', label: '结束日期', type: 'date', value: '2024-12-31' },
+                { id: 'format', label: '日期格式', type: 'select', options: [
+                    { value: 'YYYY-MM-DD', label: 'YYYY-MM-DD' },
+                    { value: 'YYYY/MM/DD', label: 'YYYY/MM/DD' },
+                    { value: 'DD/MM/YYYY', label: 'DD/MM/YYYY' },
+                    { value: 'YYYY-MM-DD HH:mm:ss', label: 'YYYY-MM-DD HH:mm:ss' }
+                ]}
+            ],
+            number: [
+                { id: 'min', label: '最小值', type: 'number', value: 0 },
+                { id: 'max', label: '最大值', type: 'number', value: 100 },
+                { id: 'decimal', label: '小数位数', type: 'number', value: 0, min: 0, max: 10 }
+            ],
+            custom: [
+                { id: 'pattern', label: '自定义规则', type: 'text', placeholder: '例如：###-???-***' }
+            ]
+        };
+
+        function updateTypeOptions() {
+            const type = document.getElementById('dataType').value;
+            const container = document.getElementById('typeOptions');
+            container.innerHTML = '';
+
+            typeConfigs[type].forEach(config => {
+                const item = document.createElement('div');
+                item.className = 'config-item';
+                
+                const label = document.createElement('label');
+                label.textContent = config.label;
+                label.setAttribute('for', config.id);
+                
+                if (config.type === 'checkbox') {
+                    const checkboxWrap = document.createElement('div');
+                    checkboxWrap.className = 'checkbox-wrap';
+                    
+                    const input = document.createElement('input');
+                    input.type = config.type;
+                    input.id = config.id;
+                    input.checked = config.checked;
+                    
+                    checkboxWrap.appendChild(input);
+                    checkboxWrap.appendChild(label);
+                    item.appendChild(checkboxWrap);
+                } else {
+                    item.appendChild(label);
+                    
+                    let input;
+                    if (config.type === 'select') {
+                        input = document.createElement('select');
+                        config.options.forEach(option => {
+                            const opt = document.createElement('option');
+                            opt.value = option.value;
+                            opt.textContent = option.label;
+                            input.appendChild(opt);
+                        });
+                    } else {
+                        input = document.createElement('input');
+                        input.type = config.type;
+                        input.value = config.value || '';
+                        input.placeholder = config.placeholder || '';
+                        if (config.min !== undefined) input.min = config.min;
+                        if (config.max !== undefined) input.max = config.max;
+                    }
+                    input.id = config.id;
+                    item.appendChild(input);
+                }
+                
+                container.appendChild(item);
+            });
+        }
+
+        // 确保在DOM加载完成后绑定事件
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化数据类型选择
+            const dataTypeSelect = document.getElementById('dataType');
+            if (!dataTypeSelect.value) {
+                dataTypeSelect.value = 'person';
+            }
+            
+            updateTypeOptions();
+            document.getElementById('generateBtn').addEventListener('click', generateData);
+            // 添加数据类型变化事件监听
+            dataTypeSelect.addEventListener('change', updateTypeOptions);
+        });
+
+        function copyData() {
+            const previewElement = document.getElementById('preview');
+            const content = previewElement.textContent;
+            if (!content || content.trim() === '') {
+                showToast('没有可复制的数据', 'error');
+                return;
+            }
+            navigator.clipboard.writeText(content)
+                .then(() => showToast('复制成功', 'success'))
+                .catch(err => showToast('复制失败: ' + err.message, 'error'));
+        }
+
+        function exportData() {
+            const previewElement = document.getElementById('preview');
+            const content = previewElement.textContent;
+            if (!content || content.trim() === '') {
+                showToast('没有可导出的数据', 'error');
+                return;
+            }
+            const blob = new Blob([content], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'generated_data.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('导出成功', 'success');
+        }
+
+        function showToast(message, type = '') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast';
+            if (type) {
+                toast.classList.add(type);
+            }
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function generateRandomName() {
+            const firstNames = ['赵', '钱', '孙', '李', '周', '吴', '郑', '王', '冯', '陈', '褚', '卫', '蒋', '沈', '韩', '杨', '朱', '秦', '尤', '许', '何', '吕', '施', '张', '孔', '曹', '严', '华', '金', '魏', '陶', '姜', '戚', '谢', '邹', '喻', '柏', '水', '窦', '章', '云', '苏', '潘', '葛', '奚', '范', '彭', '郎', '鲁', '韦'];
+            const lastNames = ['伟', '芳', '娜', '秀英', '敏', '静', '丽', '强', '磊', '洋', '艳', '勇', '军', '杰', '娟', '涛', '明', '超', '秀兰', '霞', '平', '刚', '桂英', '玉兰', '建华', '建国', '建军', '建平', '建华', '建设'];
+            return firstNames[Math.floor(Math.random() * firstNames.length)] + lastNames[Math.floor(Math.random() * lastNames.length)];
+        }
+
+        function generateRandomPhone() {
+            const prefixes = ['130', '131', '132', '133', '134', '135', '136', '137', '138', '139', '150', '151', '152', '153', '155', '156', '157', '158', '159', '170', '176', '177', '178', '180', '181', '182', '183', '184', '185', '186', '187', '188', '189'];
+            const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+            const suffix = Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
+            return prefix + suffix;
+        }
+
+        function generateRandomEmail() {
+            const domains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', '163.com', 'qq.com'];
+            const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+            let username = '';
+            const length = 5 + Math.floor(Math.random() * 8);
+            for (let i = 0; i < length; i++) {
+                username += chars[Math.floor(Math.random() * chars.length)];
+            }
+            return username + '@' + domains[Math.floor(Math.random() * domains.length)];
+        }
+
+        function generateRandomId() {
+            // 生成随机18位身份证号
+            const areaCode = '110101'; // 使用北京市东城区的区域代码
+            const birthYear = 1960 + Math.floor(Math.random() * 40);
+            const birthMonth = (1 + Math.floor(Math.random() * 12)).toString().padStart(2, '0');
+            const birthDay = (1 + Math.floor(Math.random() * 28)).toString().padStart(2, '0');
+            const sequence = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            const checkCode = '0123456789X'[Math.floor(Math.random() * 11)];
+            return areaCode + birthYear + birthMonth + birthDay + sequence + checkCode;
+        }
+
+        function generateRandomProvince() {
+            const provinces = ['北京市', '上海市', '广东省', '江苏省', '浙江省', '山东省', '河南省', '四川省', '湖北省', '湖南省'];
+            return provinces[Math.floor(Math.random() * provinces.length)];
+        }
+
+        function generateRandomCity() {
+            const cities = ['北京市', '上海市', '广州市', '深圳市', '杭州市', '南京市', '成都市', '武汉市', '长沙市', '郑州市'];
+            return cities[Math.floor(Math.random() * cities.length)];
+        }
+
+        function generateRandomStreet() {
+            const streets = ['中山路', '解放路', '人民路', '建设路', '和平路', '新华路', '长江路', '黄河路', '青年路', '文化路'];
+            const numbers = Math.floor(Math.random() * 200) + 1;
+            return streets[Math.floor(Math.random() * streets.length)] + numbers + '号';
+        }
+
+        function generateRandomPostcode() {
+            return (100000 + Math.floor(Math.random() * 900000)).toString();
+        }
+
+        function generateRandomDate(start, end, format) {
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+            const randomDate = new Date(startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime()));
+            
+            const year = randomDate.getFullYear();
+            const month = (randomDate.getMonth() + 1).toString().padStart(2, '0');
+            const day = randomDate.getDate().toString().padStart(2, '0');
+            const hours = randomDate.getHours().toString().padStart(2, '0');
+            const minutes = randomDate.getMinutes().toString().padStart(2, '0');
+            const seconds = randomDate.getSeconds().toString().padStart(2, '0');
+
+            switch(format) {
+                case 'YYYY-MM-DD':
+                    return `${year}-${month}-${day}`;
+                case 'YYYY/MM/DD':
+                    return `${year}/${month}/${day}`;
+                case 'DD/MM/YYYY':
+                    return `${day}/${month}/${year}`;
+                case 'YYYY-MM-DD HH:mm:ss':
+                    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+                default:
+                    return `${year}-${month}-${day}`;
+            }
+        }
+
+        function generateRandomNumber(min, max, decimal) {
+            const range = max - min;
+            const randomNum = min + Math.random() * range;
+            return Number(randomNum.toFixed(decimal));
+        }
+
+        function generateCustomPattern(pattern) {
+            if (!pattern) return '';
+            const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const numbers = '0123456789';
+            const specials = '!@#$%^&*';
+            
+            return pattern.split('').map(char => {
+                switch(char) {
+                    case '#': return numbers[Math.floor(Math.random() * numbers.length)];
+                    case '?': return chars[Math.floor(Math.random() * chars.length)];
+                    case '*': return specials[Math.floor(Math.random() * specials.length)];
+                    default: return char;
+                }
+            }).join('');
+        }
+    </script>
+</body>
+</html>

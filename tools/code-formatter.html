@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>代码格式化 - YTools</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --text-color: #333;
+            --bg-color: #fff;
+            --border-color: #e0e0e0;
+            --hover-color: #f5f5f5;
+            --editor-bg: #2d2d2d;
+        }
+
+        body.dark-theme {
+            --text-color: #e0e0e0;
+            --bg-color: #1a1a1a;
+            --border-color: #333;
+            --hover-color: #2a2a2a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+        }
+
+        header {
+            background-color: var(--bg-color);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .theme-toggle svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .page-description {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .toolbar select,
+        .toolbar input {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .action-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .action-button:hover {
+            background-color: var(--hover-color);
+        }
+
+        .editor-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .editor-wrapper {
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .editor-label {
+            padding: 0.5rem;
+            background-color: var(--border-color);
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        .CodeMirror {
+            height: 400px;
+            font-size: 14px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid var(--border-color);
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .editor-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="../index.html" class="logo">YTools</a>
+            <button class="theme-toggle" title="切换主题">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 3V4M12 20V21M21 12H20M4 12H3M18.364 18.364L17.657 17.657M6.343 6.343L5.636 5.636M18.364 5.636L17.657 6.343M6.343 17.657L5.636 18.364" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="container">
+        <h1 class="page-title">代码格式化</h1>
+        <p class="page-description">支持多种编程语言的代码美化和压缩</p>
+
+        <div class="toolbar">
+            <select id="language-select" onchange="updateMode()">
+                <option value="javascript">JavaScript</option>
+                <option value="html">HTML</option>
+                <option value="css">CSS</option>
+                <option value="python">Python</option>
+                <option value="java">Java</option>
+                <option value="json">JSON</option>
+                <option value="xml">XML</option>
+                <option value="sql">SQL</option>
+            </select>
+            <select id="indent-size">
+                <option value="2">缩进: 2空格</option>
+                <option value="4">缩进: 4空格</option>
+                <option value="tab">缩进: Tab</option>
+            </select>
+            <button class="action-button" onclick="formatCode()">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 7L7 4M7 4L10 7M7 4V20M20 17L17 20M17 20L14 17M17 20V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                格式化
+            </button>
+            <button class="action-button" onclick="minifyCode()">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 9L12 15L5 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                压缩
+            </button>
+            <button class="action-button" onclick="copyCode()">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 4V16C8 17.1046 8.89543 18 10 18H18C19.1046 18 20 17.1046 20 16V7.41421C20 6.88378 19.7893 6.37507 19.4142 6L16 2.58579C15.6249 2.21071 15.1162 2 14.5858 2H10C8.89543 2 8 2.89543 8 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M16 18V20C16 21.1046 15.1046 22 14 22H6C4.89543 22 4 21.1046 4 20V8C4 6.89543 4.89543 6 6 6H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                复制
+            </button>
+        </div>
+
+        <div class="editor-container">
+            <div class="editor-wrapper">
+                <div class="editor-label">输入代码</div>
+                <textarea id="input-editor"></textarea>
+            </div>
+            <div class="editor-wrapper">
+                <div class="editor-label">格式化结果</div>
+                <textarea id="output-editor"></textarea>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p class="footer-text">© 2024 YTools. 一站式高效开发工具集。</p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/clike/clike.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/sql/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify-html.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify-css.min.js"></script>
+
+    <script>
+        // 主题切换功能
+        const themeToggle = document.querySelector('.theme-toggle');
+        const body = document.body;
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+        // 检查本地存储中的主题设置
+        const currentTheme = localStorage.getItem('theme');
+        if (currentTheme === 'dark') {
+            body.classList.add('dark-theme');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-theme');
+            const theme = body.classList.contains('dark-theme') ? 'dark' : 'light';
+            localStorage.setItem('theme', theme);
+            updateEditorTheme();
+        });
+
+        // 初始化 CodeMirror 编辑器
+        let inputEditor = CodeMirror.fromTextArea(document.getElementById('input-editor'), {
+            mode: 'javascript',
+            theme: 'monokai',
+            lineNumbers: true,
+            autoCloseBrackets: true,
+            matchBrackets: true,
+            indentUnit: 4,
+            tabSize: 4,
+            lineWrapping: true
+        });
+
+        let outputEditor = CodeMirror.fromTextArea(document.getElementById('output-editor'), {
+            mode: 'javascript',
+            theme: 'monokai',
+            lineNumbers: true,
+            autoCloseBrackets: true,
+            matchBrackets: true,
+            indentUnit: 4,
+            tabSize: 4,
+            lineWrapping: true,
+            readOnly: true
+        });
+
+        // 更新编辑器主题
+        function updateEditorTheme() {
+            const theme = body.classList.contains('dark-theme') ? 'monokai' : 'default';
+            inputEditor.setOption('theme', theme);
+            outputEditor.setOption('theme', theme);
+        }
+
+        // 更新编辑器模式
+        function updateMode() {
+            const language = document.getElementById('language-select').value;
+            const modeMap = {
+                'javascript': 'javascript',
+                'html': 'htmlmixed',
+                'css': 'css',
+                'python': 'python',
+                'java': 'clike',
+                'json': 'javascript',
+                'xml': 'xml',
+                'sql': 'sql'
+            };
+            inputEditor.setOption('mode', modeMap[language]);
+            outputEditor.setOption('mode', modeMap[language]);
+        }
+
+        // 格式化代码
+        function formatCode() {
+            const language = document.getElementById('language-select').value;
+            const indentSize = document.getElementById('indent-size').value;
+            const code = inputEditor.getValue();
+            let formattedCode = '';
+
+            const options = {
+                indent_size: indentSize === 'tab' ? 1 : parseInt(indentSize),
+                indent_char: indentSize === 'tab' ? '\t' : ' ',
+                max_preserve_newlines: 2,
+                preserve_newlines: true,
+                keep_array_indentation: false,
+                break_chained_methods: false,
+                indent_scripts: 'normal',
+                brace_style: 'collapse',
+                space_before_conditional: true,
+                unescape_strings: false,
+                jslint_happy: false,
+                end_with_newline: false,
+                wrap_line_length: 0,
+                indent_inner_html: false,
+                comma_first: false,
+                e4x: false,
+                indent_empty_lines: false
+            };
+
+            try {
+                switch (language) {
+                    case 'javascript':
+                    case 'json':
+                        formattedCode = js_beautify(code, options);
+                        break;
+                    case 'html':
+                    case 'xml':
+                        formattedCode = html_beautify(code, options);
+                        break;
+                    case 'css':
+                        formattedCode = css_beautify(code, options);
+                        break;
+                    default:
+                        formattedCode = code; // 其他语言暂不支持格式化
+                        break;
+                }
+                outputEditor.setValue(formattedCode);
+            } catch (error) {
+                console.error('格式化失败:', error);
+                alert('格式化失败，请检查代码语法是否正确');
+            }
+        }
+
+        // 压缩代码
+        function minifyCode() {
+            const language = document.getElementById('language-select').value;
+            const code = inputEditor.getValue();
+            let minifiedCode = '';
+
+            try {
+                switch (language) {
+                    case 'javascript':
+                    case 'json':
+                        minifiedCode = code
+                            .replace(/\/\*[\s\S]*?\*\//g, '') // 删除多行注释
+                            .replace(/\/\/.*/g, '') // 删除单行注释
+                            .replace(/\s+/g, ' ') // 多个空格替换为单个空格
+                            .replace(/\s*([\{\}\[\]\(\)\,\;\:\+\-\*\/\>\<\=]|\&\&|\|\|)\s*/g, '$1') // 删除运算符周围的空格
+                            .trim();
+                        break;
+                    case 'html':
+                    case 'xml':
+                        minifiedCode = code
+                            .replace(/<!--[\s\S]*?-->/g, '') // 删除注释
+                            .replace(/\>\s+\</g, '><') // 删除标签之间的空白
+                            .replace(/([\s\r\n])+/g, ' ') // 多个空格替换为单个空格
+                            .trim();
+                        break;
+                    case 'css':
+                        minifiedCode = code
+                            .replace(/\/\*[\s\S]*?\*\//g, '') // 删除注释
+                            .replace(/\s+/g, ' ') // 多个空格替换为单个空格
+                            .replace(/\s*([\{\}\:\;\,])\s*/g, '$1') // 删除特定字符周围的空格
+                            .trim();
+                        break;
+                    default:
+                        minifiedCode = code.replace(/\s+/g, ' ').trim(); // 基本压缩
+                        break;
+                }
+                outputEditor.setValue(minifiedCode);
+            } catch (error) {
+                console.error('压缩失败:', error);
+                alert('压缩失败，请检查代码语法是否正确');
+            }
+        }
+
+        // 复制代码
+        function copyCode() {
+            const code = outputEditor.getValue();
+            navigator.clipboard.writeText(code).then(() => {
+                alert('代码已复制到剪贴板');
+            }).catch(err => {
+                console.error('复制失败:', err);
+                alert('复制失败，请手动复制');
+            });
+        }
+
+        // 初始化主题
+        updateEditorTheme();

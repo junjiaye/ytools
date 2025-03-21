@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文本对比 - YTools</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-light: #47a9ff;
+            --background-color: #f5f5f7;
+            --card-background: #ffffff;
+            --text-color: #1d1d1f;
+            --secondary-text: #86868b;
+            --border-color: #d2d2d7;
+            --hover-color: #0077ed;
+            --box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            --nav-height: 64px;
+            --border-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+            --diff-add: #e8f5ec;
+            --diff-remove: #ffeaee;
+            --diff-add-border: #34c759;
+            --diff-remove-border: #ff3b30;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+            height: var(--nav-height);
+            display: flex;
+            align-items: center;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+        }
+
+        .logo-text {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-color);
+            letter-spacing: -0.02em;
+        }
+
+        .nav {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .nav-item {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: var(--transition);
+        }
+
+        .nav-item:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: calc(var(--nav-height) + 48px) auto 48px;
+            padding: 0 24px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            letter-spacing: -0.02em;
+            text-align: center;
+        }
+
+        .page-description {
+            font-size: 16px;
+            color: var(--secondary-text);
+            max-width: 800px;
+            margin: 0 auto 40px;
+            text-align: center;
+        }
+
+        .text-areas {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-bottom: 40px;
+        }
+
+        .text-area-container {
+            background: var(--card-background);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .text-area-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .text-area-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .text-area-title svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .text-area-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-button {
+            background: none;
+            border: none;
+            padding: 4px;
+            cursor: pointer;
+            border-radius: 4px;
+            color: var(--secondary-text);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-button:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            color: var(--text-color);
+        }
+
+        .action-button svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 300px;
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            resize: vertical;
+            font-family: "SF Mono", SFMono-Regular, ui-monospace, Menlo, Monaco, Consolas, monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            background-color: rgba(0, 0, 0, 0.02);
+            transition: var(--transition);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.2);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .button {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .button svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .button-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .button-primary:hover {
+            background-color: var(--hover-color);
+            transform: translateY(-1px);
+        }
+
+        .button-secondary {
+            background-color: rgba(0, 0, 0, 0.05);
+            color: var(--text-color);
+        }
+
+        .button-secondary:hover {
+            background-color: rgba(0, 0, 0, 0.08);
+            transform: translateY(-1px);
+        }
+
+        .diff-output {
+            background: var(--card-background);
+            padding: 24px;
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .diff-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .diff-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .diff-header svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .diff-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .diff-content {
+            overflow-x: auto;
+            border-radius: 8px;
+            background-color: rgba(0, 0, 0, 0.02);
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .diff-line {
+            font-family: "SF Mono", SFMono-Regular, ui-monospace, Menlo, Monaco, Consolas, monospace;
+            padding: 4px 16px;
+            white-space: pre;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .diff-line:not(:last-child) {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .diff-line-number {
+            user-select: none;
+            color: var(--secondary-text);
+            padding-right: 16px;
+            border-right: 1px solid var(--border-color);
+            margin-right: 16px;
+            min-width: 40px;
+            text-align: right;
+        }
+
+        .diff-add {
+            background-color: var(--diff-add);
+            border-left: 3px solid var(--diff-add-border);
+        }
+
+        .diff-remove {
+            background-color: var(--diff-remove);
+            border-left: 3px solid var(--diff-remove-border);
+        }
+
+        .diff-icon {
+            margin-right: 8px;
+            width: 16px;
+            height: 16px;
+        }
+
+        .empty-diff {
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary-text);
+            text-align: center;
+        }
+
+        .empty-diff svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 16px;
+            color: var(--secondary-text);
+        }
+
+        .empty-diff p {
+            font-size: 14px;
+            max-width: 400px;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 16px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--secondary-text);
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .legend-add {
+            background-color: var(--diff-add);
+            border: 1px solid var(--diff-add-border);
+        }
+
+        .legend-remove {
+            background-color: var(--diff-remove);
+            border: 1px solid var(--diff-remove-border);
+        }
+
+        @media (max-width: 768px) {
+            .text-areas {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .container {
+                padding: 0 16px;
+                margin-top: calc(var(--nav-height) + 24px);
+            }
+
+            .header-content {
+                padding: 0 16px;
+            }
+            
+            .nav {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="../index.html" class="logo-container">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L4 6V18L12 22L20 18V6L12 2Z" stroke="#0071e3" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M12 11L4 6M12 11V22M12 11L20 6" stroke="#0071e3" stroke-width="2" stroke-linejoin="round"/>
+                </svg>
+                <span class="logo-text">YTools</span>
+            </a>
+            <nav class="nav">
+                <a href="../index.html" class="nav-item">首页</a>
+                <a href="#" class="nav-item">文档</a>
+                <a href="#" class="nav-item">关于</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1 class="page-title">文本对比工具</h1>
+        <p class="page-description">快速比较两段文本之间的差异，支持逐行高亮显示添加和删除的内容</p>
+        
+        <div class="text-areas">
+            <div class="text-area-container">
+                <div class="text-area-header">
+                    <h3 class="text-area-title">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 12H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        原始文本
+                    </h3>
+                    <div class="text-area-actions">
+                        <button class="action-button" onclick="clearText('text1')" title="清空">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M19 7L18.1327 19.1425C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M9 7V4C9 3.44772 9.44772 3 10 3H14C14.5523 3 15 3.44772 15 4V7M4 7H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <button class="action-button" onclick="loadExample('text1')" title="加载示例">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 3H15M3 6V9M21 6V9M6 3H3V6M18 3H21V6M10 21H14M6 21H3V18M18 21H21V18M3 14V18M21 14V18M3 10V14M21 10V14M14 3V12L17 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <textarea id="text1" placeholder="请输入原始文本..."></textarea>
+            </div>
+            <div class="text-area-container">
+                <div class="text-area-header">
+                    <h3 class="text-area-title">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 12H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        对比文本
+                    </h3>
+                    <div class="text-area-actions">
+                        <button class="action-button" onclick="clearText('text2')" title="清空">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M19 7L18.1327 19.1425C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M9 7V4C9 3.44772 9.44772 3 10 3H14C14.5523 3 15 3.44772 15 4V7M4 7H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <button class="action-button" onclick="loadExample('text2')" title="加载示例">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 3H15M3 6V9M21 6V9M6 3H3V6M18 3H21V6M10 21H14M6 21H3V18M18 21H21V18M3 14V18M21 14V18M3 10V14M21 10V14M14 3V12L17 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <textarea id="text2" placeholder="请输入要对比的文本..."></textarea>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="button button-primary" onclick="compareDiff()">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 18L22 12L16 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M8 6L2 12L8 18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                比较差异
+            </button>
+            <button class="button button-secondary" onclick="clearAll()">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15 2H9C7.89543 2 7 2.89543 7 4V5H17V4C17 2.89543 16.1046 2 15 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M4 7H20L19.1642 18.1923C19.0714 19.2035 18.2147 20 17.1991 20H6.80086C5.78534 20 4.92856 19.2035 4.83582 18.1923L4 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                清空内容
+            </button>
+        </div>
+        
+        <div class="diff-output">
+            <div class="diff-header">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 14L18 17H15V14L21 8V14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 16H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 12H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M3 20.5V5C3 3.89543 3.89543 3 5 3H19C20.1046 3 21 3.89543 21 5V7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    对比结果
+                </h2>
+                <div class="diff-actions">
+                    <button class="action-button" onclick="copyDiffResult()" title="复制结果">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 4H18V16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M16 6H6V20H16V6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="diffOutput" class="diff-content">
+                <div class="empty-diff">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M16 18L22 12L16 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 6L2 12L8 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <p>请在文本框中输入内容并点击"比较差异"来查看对比结果</p>
+                </div>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color legend-add"></div>
+                    <span>新增内容</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color legend-remove"></div>
+                    <span>删除内容</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let lineCount = 0;
+
+        function compareDiff() {
+            const text1 = document.getElementById('text1').value;
+            const text2 = document.getElementById('text2').value;
+            
+            // 检查输入
+            if (!text1.trim() || !text2.trim()) {
+                alert('请确保两个文本框都已填写内容');
+                return;
+            }
+            
+            const lines1 = text1.split('\n');
+            const lines2 = text2.split('\n');
+            
+            const diffOutput = document.getElementById('diffOutput');
+            diffOutput.innerHTML = '';
+            lineCount = 0;
+            
+            const diff = calculateDiff(lines1, lines2);
+            displayDiff(diff);
+        }
+
+        function calculateDiff(lines1, lines2) {
+            const diff = [];
+            let i = 0, j = 0;
+            
+            while (i < lines1.length || j < lines2.length) {
+                if (i >= lines1.length) {
+                    diff.push({ type: 'add', line: lines2[j] });
+                    j++;
+                } else if (j >= lines2.length) {
+                    diff.push({ type: 'remove', line: lines1[i] });
+                    i++;
+                } else if (lines1[i] === lines2[j]) {
+                    diff.push({ type: 'same', line: lines1[i] });
+                    i++;
+                    j++;
+                } else {
+                    diff.push({ type: 'remove', line: lines1[i] });
+                    diff.push({ type: 'add', line: lines2[j] });
+                    i++;
+                    j++;
+                }
+            }
+            
+            return diff;
+        }
+
+        function displayDiff(diff) {
+            const diffOutput = document.getElementById('diffOutput');
+            
+            if (diff.length === 0) {
+                diffOutput.innerHTML = '<div class="empty-diff"><p>两段文本完全相同</p></div>';
+                return;
+            }
+            
+            diff.forEach(item => {
+                lineCount++;
+                const line = document.createElement('div');
+                line.className = 'diff-line';
+                
+                // 添加行号
+                const lineNumber = document.createElement('span');
+                lineNumber.className = 'diff-line-number';
+                lineNumber.textContent = lineCount;
+                line.appendChild(lineNumber);
+                
+                // 添加图标和内容
+                const icon = document.createElement('span');
+                icon.className = 'diff-icon';
+                
+                switch (item.type) {
+                    case 'add':
+                        line.classList.add('diff-add');
+                        icon.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5V19M5 12H19" stroke="#34c759" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+                        break;
+                    case 'remove':
+                        line.classList.add('diff-remove');
+                        icon.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 12H19" stroke="#ff3b30" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+                        break;
+                    default:
+                        icon.innerHTML = '';
+                }
+                
+                line.appendChild(icon);
+                
+                const content = document.createElement('span');
+                content.textContent = item.line;
+                line.appendChild(content);
+                
+                diffOutput.appendChild(line);
+            });
+        }
+
+        function clearText(id) {
+            document.getElementById(id).value = '';
+        }
+
+        function clearAll() {
+            document.getElementById('text1').value = '';
+            document.getElementById('text2').value = '';
+            
+            const diffOutput = document.getElementById('diffOutput');
+            diffOutput.innerHTML = `
+                <div class="empty-diff">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M16 18L22 12L16 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 6L2 12L8 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <p>请在文本框中输入内容并点击"比较差异"来查看对比结果</p>
+                </div>
+            `;
+        }
+
+        function loadExample(id) {
+            if (id === 'text1') {
+                document.getElementById(id).value = `这是一段示例文本。
+用于展示文本对比工具的功能。
+这一行将会被删除。
+这一行保持不变。
+这是最后一行内容。`;
+            } else {
+                document.getElementById(id).value = `这是一段示例文本。
+用于展示文本对比功能的效果。
+这一行保持不变。
+这是新增的一行内容。
+这是最后一行内容。`;
+            }
+        }
+
+        function copyDiffResult() {
+            const diffOutput = document.getElementById('diffOutput');
+            
+            // 检查是否为空
+            if (diffOutput.querySelector('.empty-diff')) {
+                alert('没有可复制的差异结果');
+                return;
+            }
+            
+            // 创建一个临时元素来保存格式化后的文本
+            const tempElement = document.createElement('div');
+            
+            // 复制每一行的文本内容
+            const lines = diffOutput.querySelectorAll('.diff-line');
+            lines.forEach(line => {
+                const type = line.classList.contains('diff-add') ? '+ ' : line.classList.contains('diff-remove') ? '- ' : '  ';
+                const content = line.querySelector('span:last-child').textContent;
+                tempElement.textContent += type + content + '\n';
+            });
+            
+            navigator.clipboard.writeText(tempElement.textContent)
+                .then(() => alert('复制成功'))
+                .catch(err => alert('复制失败: ' + err.message));
+        }
+    </script>
+</body>
+</html>

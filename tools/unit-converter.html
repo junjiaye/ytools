@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单位换算 - YTools</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-light: #47a9ff;
+            --background-color: #f5f5f7;
+            --card-background: #ffffff;
+            --text-color: #1d1d1f;
+            --secondary-text: #86868b;
+            --border-color: #d2d2d7;
+            --hover-color: #0077ed;
+            --box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            --nav-height: 64px;
+            --border-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #0a84ff;
+            --primary-light: #5eb9ff;
+            --background-color: #1a1a1a;
+            --card-background: #2c2c2e;
+            --text-color: #f5f5f7;
+            --secondary-text: #aeaeb2;
+            --border-color: #3a3a3c;
+            --hover-color: #409cff;
+            --box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+            height: var(--nav-height);
+            display: flex;
+            align-items: center;
+        }
+
+        [data-theme="dark"] .header {
+            background-color: rgba(40, 40, 40, 0.8);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+        }
+
+        .logo-text {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-color);
+            letter-spacing: -0.02em;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background-color: rgba(142, 142, 147, 0.12);
+        }
+
+        [data-theme="dark"] .theme-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 100px 24px 60px;
+        }
+
+        .title {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            text-align: center;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .description {
+            text-align: center;
+            color: var(--secondary-text);
+            margin-bottom: 40px;
+        }
+
+        .converter-container {
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .unit-type-selector {
+            margin-bottom: 24px;
+        }
+
+        .unit-type-selector select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background-color: var(--card-background);
+            color: var(--text-color);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        .unit-type-selector select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .converter-grid {
+            display: grid;
+            grid-template-columns: 1fr 40px 1fr;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background-color: var(--card-background);
+            color: var(--text-color);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background-color: var(--card-background);
+            color: var(--text-color);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        .input-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .swap-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--primary-color);
+            transition: var(--transition);
+        }
+
+        .swap-icon:hover {
+            color: var(--hover-color);
+            transform: rotate(180deg);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 80px 16px 40px;
+            }
+
+            .title {
+                font-size: 28px;
+            }
+
+            .converter-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .swap-icon {
+                transform: rotate(90deg);
+            }
+
+            .swap-icon:hover {
+                transform: rotate(270deg);
+            }
+        }
+
+        /* 历史记录容器 */
+        .history-container {
+            margin-top: 40px;
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .history-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-color);
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            padding: 14px;
+            border-radius: var(--border-radius);
+            background-color: var(--background-color);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .history-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-value {
+            font-weight: 500;
+        }
+
+        .history-arrow {
+            margin: 0 12px;
+            color: var(--primary-color);
+        }
+
+        .history-type {
+            margin-left: auto;
+            color: var(--secondary-text);
+            font-size: 14px;
+        }
+
+        .history-copy {
+            background: none;
+            border: none;
+            color: var(--secondary-text);
+            cursor: pointer;
+            padding: 8px;
+            margin-left: 12px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .history-copy:hover {
+            background-color: rgba(0, 113, 227, 0.1);
+            color: var(--primary-color);
+        }
+
+        .empty-history {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 0;
+            color: var(--secondary-text);
+            text-align: center;
+        }
+
+        .empty-history svg {
+            margin-bottom: 16px;
+            opacity: 0.7;
+        }
+
+        /* 提示消息样式 */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            padding: 10px 20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* 响应式设计调整 */
+        @media (max-width: 768px) {
+            .history-item {
+                flex-wrap: wrap;
+            }
+            
+            .history-type {
+                flex-basis: 100%;
+                margin-top: 8px;
+                margin-left: 0;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="../index.html" class="logo-container">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L4 6V18L12 22L20 18V6L12 2Z" stroke="#0071e3" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M12 11L4 6M12 11V22M12 11L20 6" stroke="#0071e3" stroke-width="2" stroke-linejoin="round"/>
+                </svg>
+                <span class="logo-text">YTools</span>
+            </a>
+            <button class="theme-toggle">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 2V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 20V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M4.93 4.93L6.34 6.34" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M17.66 17.66L19.07 19.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 12H4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M20 12H22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M6.34 17.66L4.93 19.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M19.07 4.93L17.66 6.34" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="container">
+        <h1 class="title">单位换算</h1>
+        <p class="description">快速转换常用单位，支持长度、面积、体积、重量、温度等</p>
+
+        <div class="converter-container">
+            <div class="unit-type-selector">
+                <select id="unitType">
+                    <option value="length">长度</option>
+                    <option value="area">面积</option>
+                    <option value="volume">体积</option>
+                    <option value="weight">重量</option>
+                    <option value="temperature">温度</option>
+                </select>
+            </div>
+
+            <div class="converter-grid">
+                <div class="input-group">
+                    <input type="number" id="fromValue" placeholder="输入数值">
+                    <select id="fromUnit"></select>
+                </div>
+
+                <div class="swap-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7 16L3 12L7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M17 8L21 12L17 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M3 12H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+
+                <div class="input-group">
+                    <input type="number" id="toValue" placeholder="转换结果" readonly>
+                    <select id="toUnit"></select>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 单位定义
+        const units = {
+            length: {
+                name: "长度",
+                units: {
+                    mm: { name: "毫米", ratio: 0.001 },
+                    cm: { name: "厘米", ratio: 0.01 },
+                    m: { name: "米", ratio: 1 },
+                    km: { name: "千米", ratio: 1000 },
+                    in: { name: "英寸", ratio: 0.0254 },
+                    ft: { name: "英尺", ratio: 0.3048 },
+                    yd: { name: "码", ratio: 0.9144 },
+                    mi: { name: "英里", ratio: 1609.344 }
+                }
+            },
+            area: {
+                name: "面积",
+                units: {
+                    mm2: { name: "平方毫米", ratio: 0.000001 },
+                    cm2: { name: "平方厘米", ratio: 0.0001 },
+                    m2: { name: "平方米", ratio: 1 },
+                    km2: { name: "平方千米", ratio: 1000000 },
+                    ha: { name: "公顷", ratio: 10000 },
+                    in2: { name: "平方英寸", ratio: 0.00064516 },
+                    ft2: { name: "平方英尺", ratio: 0.092903 },
+                    yd2: { name: "平方码", ratio: 0.836127 },
+                    ac: { name: "英亩", ratio: 4046.86 }
+                }
+            },
+            volume: {
+                name: "体积",
+                units: {
+                    mm3: { name: "立方毫米", ratio: 0.000000001 },
+                    cm3: { name: "立方厘米", ratio: 0.000001 },
+                    ml: { name: "毫升", ratio: 0.000001 },
+                    l: { name: "升", ratio: 0.001 },
+                    m3: { name: "立方米", ratio: 1 },
+                    in3: { name: "立方英寸", ratio: 0.0000163871 },
+                    ft3: { name: "立方英尺", ratio: 0.0283168 },
+                    gal: { name: "加仑(美)", ratio: 0.00378541 }
+                }
+            },
+            weight: {
+                name: "重量",
+                units: {
+                    mg: { name: "毫克", ratio: 0.000001 },
+                    g: { name: "克", ratio: 0.001 },
+                    kg: { name: "千克", ratio: 1 },
+                    t: { name: "吨", ratio: 1000 },
+                    oz: { name: "盎司", ratio: 0.0283495 },
+                    lb: { name: "磅", ratio: 0.453592 },
+                    st: { name: "英石", ratio: 6.35029 }
+                }
+            },
+            temperature: {
+                name: "温度",
+                units: {
+                    c: { name: "摄氏度", formula: value => value },
+                    f: { name: "华氏度", formula: value => (value * 9/5) + 32, inverse: value => (value - 32) * 5/9 },
+                    k: { name: "开尔文", formula: value => value + 273.15, inverse: value => value - 273.15 }
+                }
+            },
+            time: {
+                name: "时间",
+                units: {
+                    ms: { name: "毫秒", ratio: 0.001 },
+                    s: { name: "秒", ratio: 1 },
+                    min: { name: "分钟", ratio: 60 },
+                    h: { name: "小时", ratio: 3600 },
+                    day: { name: "天", ratio: 86400 },
+                    week: { name: "周", ratio: 604800 },
+                    month: { name: "月(30天)", ratio: 2592000 },
+                    year: { name: "年(365天)", ratio: 31536000 }
+                }
+            },
+            speed: {
+                name: "速度",
+                units: {
+                    mps: { name: "米/秒", ratio: 1 },
+                    kph: { name: "千米/时", ratio: 0.277778 },
+                    mph: { name: "英里/时", ratio: 0.44704 },
+                    fps: { name: "英尺/秒", ratio: 0.3048 },
+                    kn: { name: "节", ratio: 0.514444 }
+                }
+            },
+            data: {
+                name: "数据存储",
+                units: {
+                    bit: { name: "比特", ratio: 1 },
+                    byte: { name: "字节", ratio: 8 },
+                    kb: { name: "千字节", ratio: 8 * 1000 },
+                    mb: { name: "兆字节", ratio: 8 * 1000000 },
+                    gb: { name: "吉字节", ratio: 8 * 1000000000 },
+                    tb: { name: "太字节", ratio: 8 * 1000000000000 },
+                    kib: { name: "KB (2^10)", ratio: 8 * 1024 },
+                    mib: { name: "MB (2^20)", ratio: 8 * 1048576 },
+                    gib: { name: "GB (2^30)", ratio: 8 * 1073741824 },
+                    tib: { name: "TB (2^40)", ratio: 8 * 1099511627776 }
+                }
+            }
+        };
+
+        // 当前选择的单位类型
+        let currentUnitType = 'length';
+
+        // 初始化单位类型选择器
+        function initUnitTypeSelector() {
+            const unitTypeSelector = document.getElementById('unitType');
+            unitTypeSelector.innerHTML = '';
+
+            // 添加所有单位类型选项
+            for (const [key, value] of Object.entries(units)) {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = value.name;
+                unitTypeSelector.appendChild(option);
+            }
+
+            // 监听单位类型变化
+            unitTypeSelector.addEventListener('change', function() {
+                currentUnitType = this.value;
+                updateUnitSelectors();
+                convert();
+            });
+        }
+
+        // 更新单位选择器
+        function updateUnitSelectors() {
+            const fromUnitSelector = document.getElementById('fromUnit');
+            const toUnitSelector = document.getElementById('toUnit');
+            fromUnitSelector.innerHTML = '';
+            toUnitSelector.innerHTML = '';
+
+            // 获取当前单位类型的所有单位
+            const currentUnits = units[currentUnitType].units;
+
+            // 添加所有单位选项
+            for (const [key, value] of Object.entries(currentUnits)) {
+                const fromOption = document.createElement('option');
+                fromOption.value = key;
+                fromOption.textContent = value.name;
+                fromUnitSelector.appendChild(fromOption);
+
+                const toOption = document.createElement('option');
+                toOption.value = key;
+                toOption.textContent = value.name;
+                toUnitSelector.appendChild(toOption);
+            }
+
+            // 为第二个选择器选择不同的默认值（如果可能）
+            if (toUnitSelector.options.length > 1) {
+                toUnitSelector.selectedIndex = 1;
+            }
+
+            // 添加事件监听器
+            fromUnitSelector.addEventListener('change', convert);
+            toUnitSelector.addEventListener('change', convert);
+        }
+
+        // 交换单位
+        function swapUnits() {
+            const fromUnitSelector = document.getElementById('fromUnit');
+            const toUnitSelector = document.getElementById('toUnit');
+            const fromValueInput = document.getElementById('fromValue');
+            const toValueInput = document.getElementById('toValue');
+
+            // 交换单位选择
+            const tempUnit = fromUnitSelector.value;
+            fromUnitSelector.value = toUnitSelector.value;
+            toUnitSelector.value = tempUnit;
+
+            // 交换数值
+            const tempValue = fromValueInput.value;
+            fromValueInput.value = toValueInput.value;
+            toValueInput.value = tempValue;
+
+            // 重新转换
+            convert();
+        }
+
+        // 转换单位
+        function convert() {
+            const fromValue = parseFloat(document.getElementById('fromValue').value);
+            const fromUnit = document.getElementById('fromUnit').value;
+            const toUnit = document.getElementById('toUnit').value;
+            const toValueInput = document.getElementById('toValue');
+
+            if (isNaN(fromValue)) {
+                toValueInput.value = '';
+                return;
+            }
+
+            // 温度单位需要特殊处理
+            if (currentUnitType === 'temperature') {
+                const fromFormula = units.temperature.units[fromUnit].formula;
+                const toInverse = units.temperature.units[toUnit].inverse || (value => value);
+                const result = toInverse(fromFormula(fromValue));
+                toValueInput.value = formatResult(result);
+            } else {
+                // 其他单位使用比率转换
+                const fromRatio = units[currentUnitType].units[fromUnit].ratio;
+                const toRatio = units[currentUnitType].units[toUnit].ratio;
+                const baseValue = fromValue * fromRatio;
+                const result = baseValue / toRatio;
+                toValueInput.value = formatResult(result);
+            }
+        }
+
+        // 格式化结果，避免过多小数位
+        function formatResult(value) {
+            if (Math.abs(value) >= 1000000) {
+                return value.toExponential(6);
+            } else if (Math.abs(value) < 0.000001 && value !== 0) {
+                return value.toExponential(6);
+            } else {
+                return Number(value.toPrecision(10)).toString();
+            }
+        }
+
+        // 添加历史记录
+        function addToHistory(fromValue, fromUnit, toValue, toUnit, unitType) {
+            const historyList = document.getElementById('historyList');
+            if (!historyList) return;
+
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            
+            const unitTypeName = units[unitType].name;
+            const fromUnitName = units[unitType].units[fromUnit].name;
+            const toUnitName = units[unitType].units[toUnit].name;
+            
+            historyItem.innerHTML = `
+                <span class="history-value">${fromValue} ${fromUnitName}</span>
+                <span class="history-arrow">→</span>
+                <span class="history-value">${toValue} ${toUnitName}</span>
+                <span class="history-type">${unitTypeName}</span>
+            `;
+            
+            // 添加复制按钮
+            const copyButton = document.createElement('button');
+            copyButton.className = 'history-copy';
+            copyButton.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M5 15H4C2.89543 15 2 14.1046 2 13V4C2 2.89543 2.89543 2 4 2H13C14.1046 2 15 2.89543 15 4V5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            `;
+            copyButton.title = "复制结果";
+            copyButton.addEventListener('click', function() {
+                navigator.clipboard.writeText(`${fromValue} ${fromUnitName} = ${toValue} ${toUnitName}`).then(() => {
+                    showToast('已复制到剪贴板');
+                });
+            });
+            
+            historyItem.appendChild(copyButton);
+            
+            // 插入到最前面
+            if (historyList.firstChild) {
+                historyList.insertBefore(historyItem, historyList.firstChild);
+            } else {
+                historyList.appendChild(historyItem);
+            }
+            
+            // 限制历史记录数量
+            const maxHistoryItems = 5;
+            while (historyList.children.length > maxHistoryItems) {
+                historyList.removeChild(historyList.lastChild);
+            }
+        }
+
+        // 显示提示消息
+        function showToast(message) {
+            // 检查是否已有toast元素，有则移除
+            const existingToast = document.querySelector('.toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            // 显示toast
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+            
+            // 2秒后隐藏
+            setTimeout(() => {
+                toast.classList.remove('show');
+                // 动画结束后移除元素
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 2000);
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化主题
+            initTheme();
+            
+            // 初始化单位类型选择器
+            initUnitTypeSelector();
+            
+            // 初始化单位选择器
+            updateUnitSelectors();
+            
+            // 监听输入变化
+            document.getElementById('fromValue').addEventListener('input', function() {
+                convert();
+                
+                // 如果有有效的转换结果，添加到历史记录
+                const fromValue = this.value;
+                const toValue = document.getElementById('toValue').value;
+                if (fromValue && toValue) {
+                    addToHistory(
+                        fromValue,
+                        document.getElementById('fromUnit').value,
+                        toValue,
+                        document.getElementById('toUnit').value,
+                        currentUnitType
+                    );
+                }
+            });
+            
+            // 监听交换按钮点击
+            document.querySelector('.swap-icon').addEventListener('click', swapUnits);
+            
+            // 主题切换功能
+            document.querySelector('.theme-toggle').addEventListener('click', toggleTheme);
+        });
+
+        // 主题切换功能
+        const themeToggle = document.querySelector('.theme-toggle');
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+        // 初始化主题
+        function initTheme() {
+            // 检查本地存储的主题偏好
+            const savedTheme = localStorage.getItem('ytools-theme');
+            
+            if (savedTheme) {
+                // 应用保存的主题偏好
+                document.documentElement.setAttribute('data-theme', savedTheme);
+                updateThemeIcon(savedTheme);
+            } else if (prefersDarkScheme.matches) {
+                // 如果用户系统偏好深色模式，自动应用深色主题
+                document.documentElement.setAttribute('data-theme', 'dark');
+                updateThemeIcon('dark');
+            }
+        }
+
+        // 切换主题
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            // 应用新主题
+            document.documentElement.setAttribute('data-theme', newTheme);
+            
+            // 保存主题偏好到本地存储
+            localStorage.setItem('ytools-theme', newTheme);
+            
+            // 更新主题图标
+            updateThemeIcon(newTheme);
+        }
+
+        // 更新主题切换按钮图标
+        function updateThemeIcon(theme) {
+            if (theme === 'dark') {
+                themeToggle.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z" stroke="#f5f5f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                `;
+            } else {
+                themeToggle.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 2V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 20V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M4.93 4.93L6.34 6.34" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M17.66 17.66L19.07 19.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 12H4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M20 12H22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M6.34 17.66L4.93 19.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M19.07 4.93L17.66 6.34" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

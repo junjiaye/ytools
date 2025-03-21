@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>字数统计 - YTools</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --text-color: #333;
+            --bg-color: #fff;
+            --border-color: #e0e0e0;
+            --hover-color: #f5f5f5;
+        }
+
+        body.dark-theme {
+            --text-color: #e0e0e0;
+            --bg-color: #1a1a1a;
+            --border-color: #333;
+            --hover-color: #2a2a2a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+        }
+
+        header {
+            background-color: var(--bg-color);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .theme-toggle svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .page-description {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .text-area-container {
+            margin-bottom: 2rem;
+        }
+
+        .text-input {
+            width: 100%;
+            height: 300px;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            resize: vertical;
+            font-family: inherit;
+            font-size: 1rem;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .toolbar {
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .action-button:hover {
+            background-color: var(--hover-color);
+        }
+
+        .action-button svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card {
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid var(--border-color);
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="../index.html" class="logo">YTools</a>
+            <button class="theme-toggle" title="切换主题">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 3V4M12 20V21M21 12H20M4 12H3M18.364 18.364L17.657 17.657M6.343 6.343L5.636 5.636M18.364 5.636L17.657 6.343M6.343 17.657L5.636 18.364" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="container">
+        <h1 class="page-title">字数统计</h1>
+        <p class="page-description">统计文本字数、字符数、行数等信息</p>
+        
+        <div class="toolbar">
+            <button class="action-button" onclick="clearText()">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 7L18.1327 19.1425C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M3 7H21M16 7L15.2511 4.13572C15.0929 3.52425 14.5259 3.1 13.8854 3H10.1146C9.47408 3 8.90708 3.52425 8.74891 4.13572L8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                清空
+            </button>
+            <button class="action-button" onclick="copyText()">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 4V16C8 17.1046 8.89543 18 10 18H18C19.1046 18 20 17.1046 20 16V7.41421C20 6.88378 19.7893 6.37507 19.4142 6L16 2.58579C15.6249 2.21071 15.1162 2 14.5858 2H10C8.89543 2 8 2.89543 8 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M16 18V20C16 21.1046 15.1046 22 14 22H6C4.89543 22 4 21.1046 4 20V8C4 6.89543 4.89543 6 6 6H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                复制
+            </button>
+        </div>
+
+        <div class="text-area-container">
+            <textarea id="text-input" class="text-input" placeholder="在此输入或粘贴文本..." oninput="updateStats()"></textarea>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-value" id="char-count">0</div>
+                <div class="stat-label">字符数（含空格）</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="char-no-space-count">0</div>
+                <div class="stat-label">字符数（不含空格）</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="word-count">0</div>
+                <div class="stat-label">单词数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="line-count">0</div>
+                <div class="stat-label">行数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="paragraph-count">0</div>
+                <div class="stat-label">段落数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="chinese-char-count">0</div>
+                <div class="stat-label">中文字数</div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p class="footer-text">© 2024 YTools. 一站式高效开发工具集。</p>
+        </div>
+    </footer>
+
+    <script>
+        // 主题切换功能
+        const themeToggle = document.querySelector('.theme-toggle');
+        const body = document.body;
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+        // 检查本地存储中的主题设置
+        const currentTheme = localStorage.getItem('theme');
+        if (currentTheme === 'dark') {
+            body.classList.add('dark-theme');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-theme');
+            // 保存主题设置到本地存储
+            const theme = body.classList.contains('dark-theme') ? 'dark' : 'light';
+            localStorage.setItem('theme', theme);
+        });
+
+        // 统计功能
+        function updateStats() {
+            const text = document.getElementById('text-input').value;
+            
+            // 字符数（含空格）
+            document.getElementById('char-count').textContent = text.length;
+            
+            // 字符数（不含空格）
+            document.getElementById('char-no-space-count').textContent = text.replace(/\s/g, '').length;
+            
+            // 单词数
+            const words = text.trim().split(/\s+/);
+            document.getElementById('word-count').textContent = text.trim() ? words.length : 0;
+            
+            // 行数
+            const lines = text.split('\n');
+            document.getElementById('line-count').textContent = text.trim() ? lines.length : 0;
+            
+            // 段落数
+            const paragraphs = text.trim().split(/\n\s*\n/);
+            document.getElementById('paragraph-count').textContent = text.trim() ? paragraphs.length : 0;
+            
+            // 中文字数
+            const chineseChars = text.match(/[\u4e00-\u9fa5]/g);
+            document.getElementById('chinese-char-count').textContent = chineseChars ? chineseChars.length : 0;
+        }
+
+        // 清空文本
+        function clearText() {
+            document.getElementById('text-input').value = '';
+            updateStats();
+        }
+
+        // 复制文本
+        function copyText() {
+            const textarea = document.getElementById('text-input');
+            textarea.select();
+            document.execCommand('copy');
+        }
+    </script>
+</body>
+</html>

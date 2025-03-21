@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关于 - YTools</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --text-color: #1d1d1f;
+            --secondary-text: #6e6e73;
+            --background: #ffffff;
+            --card-background: #f5f5f7;
+            --border-color: rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+            --nav-height: 64px;
+        }
+
+        [data-theme="dark"] {
+            --text-color: #f5f5f7;
+            --secondary-text: #86868b;
+            --background: #000000;
+            --card-background: #1d1d1f;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--background);
+            color: var(--text-color);
+            line-height: 1.5;
+            transition: var(--transition);
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--background);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 100;
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+            height: var(--nav-height);
+            display: flex;
+            align-items: center;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+        }
+
+        .logo-text {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-color);
+            letter-spacing: -0.02em;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background-color: rgba(142, 142, 147, 0.12);
+        }
+
+        [data-theme="dark"] .theme-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 100px 24px 60px;
+        }
+
+        .page-title {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+            text-align: center;
+            background: linear-gradient(90deg, #0071e3, #47a9ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-description {
+            font-size: 18px;
+            color: var(--secondary-text);
+            max-width: 700px;
+            margin: 0 auto 40px;
+            text-align: center;
+        }
+
+        .about-section {
+            background: var(--card-background);
+            border-radius: 20px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+        }
+
+        .about-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-title svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .contact-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary-color);
+            text-decoration: none;
+            margin-top: 8px;
+        }
+
+        .contact-info:hover {
+            text-decoration: underline;
+        }
+
+        .contact-info svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 80px 16px 40px;
+            }
+
+            .page-title {
+                font-size: 28px;
+            }
+
+            .page-description {
+                font-size: 16px;
+            }
+
+            .about-section {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="../index.html" class="logo-container">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L4 6V18L12 22L20 18V6L12 2Z" stroke="#0071e3" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M12 11L4 6M12 11V22M12 11L20 6" stroke="#0071e3" stroke-width="2" stroke-linejoin="round"/>
+                </svg>
+                <span class="logo-text">YTools</span>
+            </a>
+            <button class="theme-toggle">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16Z" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 2V4" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 20V22" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M4.93 4.93L6.34 6.34" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M17.66 17.66L19.07 19.07" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 12H4" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M20 12H22" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M6.34 17.66L4.93 19.07" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M19.07 4.93L17.66 6.34" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="container">
+        <h1 class="page-title">关于 YTools</h1>
+        <p class="page-description">一个简单而强大的在线工具集合</p>
+
+        <div class="about-section">
+            <h2 class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M19.4 15C19.1277 15.8031 19.0097 16.6496 19.0499 17.4984C19.0901 18.3472 19.2877 19.1808 19.6313 19.9555C19.975 20.7301 20.4581 21.4796 21.0598 22.1705C21.6615 22.8614 22.3721 23.4831 23.163 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M4.6 15C4.87233 15.8031 4.99029 16.6496 4.95012 17.4984C4.90995 18.3472 4.71234 19.1808 4.36866 19.9555C4.02498 20.7301 3.54192 21.4796 2.94021 22.1705C2.3385 22.8614 1.62789 23.4831 0.836975 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 8C13.6569 8 15 6.65685 15 5C15 3.34315 13.6569 2 12 2C10.3431 2 9 3.34315 9 5C9 6.65685 10.3431 8 12 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                项目介绍
+            </h2>
+            <p>YTools 是一个由 YeJJ 使用 Trae 工具开发的在线工具集合。该项目旨在提供一系列简单易用、功能强大的在线工具，帮助用户提高工作效率。</p>
+        </div>
+
+        <div class="about-section">
+            <h2 class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                作者信息
+            </h2>
+            <p>YeJJ 是一位热衷于开发实用工具的开发者，致力于为用户提供优质的在线工具体验。</p>
+            <a href="mailto:yejjgo@gmail" class="contact-info">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M22 6L12 13L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                yejjgo@gmail
+            </a>
+        </div>
+    </main>
+
+    <script>
+        // 主题切换功能
+        const themeToggle = document.querySelector('.theme-toggle');
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+        }
+
+        // 初始化主题
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            setTheme(savedTheme);
+        } else if (prefersDarkScheme.matches) {
+            setTheme('dark');
+        }
+
+        // 监听主题切换按钮点击
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+        });
+
+        // 监听系统主题变化
+        prefersDarkScheme.addListener((e) => {
+            if (!localStorage.getItem('theme')) {
+                setTheme(e.matches ? 'dark' : 'light');
+            }
+        });
+    </script>
+</body>
+</html>

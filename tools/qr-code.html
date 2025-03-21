@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二维码生成器 - YTools</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-light: #47a9ff;
+            --background-color: #f5f5f7;
+            --card-background: #ffffff;
+            --text-color: #1d1d1f;
+            --secondary-text: #86868b;
+            --border-color: #d2d2d7;
+            --hover-color: #0077ed;
+            --box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            --nav-height: 64px;
+            --border-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+            --header-bg: rgba(255, 255, 255, 0.8);
+        }
+
+        /* 深色模式变量 */
+        [data-theme="dark"] {
+            --primary-color: #0a84ff;
+            --primary-light: #5eb9ff;
+            --background-color: #1a1a1a;
+            --card-background: #2c2c2e;
+            --text-color: #f5f5f7;
+            --secondary-text: #aeaeb2;
+            --border-color: #3a3a3c;
+            --hover-color: #409cff;
+            --box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            --header-bg: rgba(40, 40, 40, 0.8);
+        }
+
+        .theme-transition {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background-color: var(--header-bg);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+            height: var(--nav-height);
+            display: flex;
+            align-items: center;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+        }
+
+        .logo-text {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-color);
+            letter-spacing: -0.02em;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background-color: rgba(142, 142, 147, 0.12);
+        }
+
+        [data-theme="dark"] .theme-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 100px 24px 60px;
+        }
+
+        .page-title {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+            text-align: center;
+            background: linear-gradient(90deg, #0071e3, #47a9ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-description {
+            font-size: 18px;
+            color: var(--secondary-text);
+            max-width: 700px;
+            margin: 0 auto 40px;
+            text-align: center;
+        }
+
+        .qrcode-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+
+        .input-section, .preview-section {
+            background: var(--card-background);
+            border-radius: var(--border-radius);
+            padding: 32px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: var(--transition);
+        }
+
+        .input-section:hover, .preview-section:hover {
+            box-shadow: var(--box-shadow);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-color);
+        }
+
+        .section-title svg {
+            width: 20px;
+            height: 20px;
+            stroke: var(--primary-color);
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 15px;
+            resize: vertical;
+            margin-bottom: 24px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: var(--transition);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.2);
+        }
+
+        .options-group {
+            margin-bottom: 20px;
+        }
+
+        .option-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 15px;
+            color: var(--text-color);
+        }
+
+        .option-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 15px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: var(--transition);
+        }
+
+        .option-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.2);
+        }
+
+        input[type="color"] {
+            padding: 4px;
+            height: 48px;
+            cursor: pointer;
+        }
+
+        .preview-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 260px;
+            background: var(--background-color);
+            border-radius: 10px;
+            margin-bottom: 24px;
+            padding: 20px;
+            transition: var(--transition);
+        }
+
+        [data-theme="dark"] .preview-box {
+            background-color: #000;
+        }
+
+        .action-button {
+            padding: 12px 24px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 24px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 auto;
+        }
+
+        .action-button:hover {
+            background-color: var(--hover-color);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 113, 227, 0.3);
+        }
+
+        .action-button svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .generate-button {
+            margin: 10px 0 0 0;
+            background-color: var(--primary-light);
+        }
+
+        .generate-button:hover {
+            background-color: var(--primary-color);
+        }
+
+        .action-button:disabled {
+            background-color: var(--secondary-text);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.7;
+        }
+
+        @media (max-width: 768px) {
+            .qrcode-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 100px 16px 40px;
+            }
+            
+            .page-title {
+                font-size: 28px;
+            }
+            
+            .page-description {
+                font-size: 16px;
+                margin-bottom: 30px;
+            }
+            
+            .input-section, .preview-section {
+                padding: 24px;
+            }
+        }
+
+        /* 颜色和按钮行容器 */
+        .color-controls-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        /* 颜色选项容器 */
+        .color-option {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* 颜色输入框样式调整 */
+        .color-input {
+            width: 100%;
+            height: 48px;
+            padding: 4px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background-color: var(--background-color);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .color-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.2);
+        }
+
+        /* 生成按钮样式调整 */
+        .color-controls-row .generate-button {
+            align-self: flex-end;
+            margin: 0;
+            padding: 12px 24px;
+            height: 48px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        /* 移除原来的input[type="color"]样式覆盖，因为现在我们使用更具体的类 */
+        input[type="color"].color-input {
+            padding: 4px;
+            cursor: pointer;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 500px) {
+            .color-controls-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 20px;
+            }
+            
+            .color-controls-row .generate-button {
+                width: 100%;
+                margin-top: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="../index.html" class="logo-container">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L4 6V18L12 22L20 18V6L12 2Z" stroke="#0071e3" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M12 11L4 6M12 11V22M12 11L20 6" stroke="#0071e3" stroke-width="2" stroke-linejoin="round"/>
+                </svg>
+                <span class="logo-text">YTools</span>
+            </a>
+            <button class="theme-toggle">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16Z" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 2V4" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 20V22" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M4.93 4.93L6.34 6.34" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M17.66 17.66L19.07 19.07" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 12H4" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M20 12H22" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M6.34 17.66L4.93 19.07" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M19.07 4.93L17.66 6.34" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="container">
+        <h1 class="page-title">二维码生成器</h1>
+        <p class="page-description">生成自定义内容的二维码，支持样式定制</p>
+
+        <div class="qrcode-container">
+            <div class="input-section">
+                <h2 class="section-title">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 12V7C21 5.89543 20.1046 5 19 5H5C3.89543 5 3 5.89543 3 7V17C3 18.1046 3.89543 19 5 19H14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M7 9L12 12L17 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    输入内容
+                </h2>
+                <textarea id="qrContent" placeholder="请输入要生成二维码的内容..."></textarea>
+
+                <div class="options-group">
+                    <label class="option-label">二维码尺寸</label>
+                    <input type="number" id="qrSize" class="option-input" value="200" min="100" max="500">
+                </div>
+
+                <div class="color-controls-row">
+                    <div class="color-option">
+                        <label class="option-label">前景色</label>
+                        <input type="color" id="qrColor" class="color-input" value="#000000">
+                    </div>
+                    
+                    <div class="color-option">
+                        <label class="option-label">背景色</label>
+                        <input type="color" id="qrBackground" class="color-input" value="#ffffff">
+                    </div>
+                    
+                    <button class="action-button generate-button" id="generateButton">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 5V19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M5 12H19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        生成
+                    </button>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <h2 class="section-title">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 14H10V21H3V14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M14 14H21V21H14V14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M3 3H10V10H3V3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M14 3H21V10H14V3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    预览
+                </h2>
+                <div class="preview-box" id="qrcode"></div>
+                <button class="action-button" onclick="downloadQRCode()">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M7 10L12 15L17 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 15V3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    下载二维码
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+    <script>
+        let qrcode = null;
+        const generateButton = document.getElementById('generateButton');
+
+        // 主题切换功能
+        const themeToggle = document.querySelector('.theme-toggle');
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+        // 初始化主题
+        function initTheme() {
+            // 检查本地存储的主题偏好
+            const savedTheme = localStorage.getItem('ytools-theme');
+            
+            if (savedTheme) {
+                // 应用保存的主题偏好
+                document.documentElement.setAttribute('data-theme', savedTheme);
+                updateThemeIcon(savedTheme);
+            } else if (prefersDarkScheme.matches) {
+                // 如果用户系统偏好深色模式，自动应用深色主题
+                document.documentElement.setAttribute('data-theme', 'dark');
+                updateThemeIcon('dark');
+            }
+        }
+
+        // 切换主题
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            // 应用新主题
+            document.documentElement.setAttribute('data-theme', newTheme);
+            
+            // 保存主题偏好到本地存储
+            localStorage.setItem('ytools-theme', newTheme);
+            
+            // 更新主题图标
+            updateThemeIcon(newTheme);
+            
+            // 添加过渡动画效果
+            document.documentElement.classList.add('theme-transition');
+            setTimeout(() => {
+                document.documentElement.classList.remove('theme-transition');
+            }, 300);
+            
+            // 重新生成二维码以适应新主题
+            generateQRCode();
+        }
+
+        // 更新主题切换按钮图标
+        function updateThemeIcon(theme) {
+            if (theme === 'dark') {
+                themeToggle.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z" stroke="#f5f5f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                `;
+            } else {
+                themeToggle.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16Z" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 2V4" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 20V22" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M4.93 4.93L6.34 6.34" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M17.66 17.66L19.07 19.07" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 12H4" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M20 12H22" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M6.34 17.66L4.93 19.07" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M19.07 4.93L17.66 6.34" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                `;
+            }
+        }
+
+        function validateInput() {
+            const content = document.getElementById('qrContent').value.trim();
+            // 禁用或启用生成按钮
+            generateButton.disabled = content === '';
+            return content !== '';
+        }
+
+        function generateQRCode() {
+            const content = document.getElementById('qrContent').value.trim();
+            const size = parseInt(document.getElementById('qrSize').value);
+            const color = document.getElementById('qrColor').value;
+            const background = document.getElementById('qrBackground').value;
+
+            const qrcodeElement = document.getElementById('qrcode');
+            qrcodeElement.innerHTML = '';
+
+            if (content) {
+                // 显示加载状态
+                qrcodeElement.innerHTML = '<div style="color: var(--secondary-text); text-align: center;">生成中...</div>';
+                
+                // 延迟一点点生成，以便显示加载状态，并提升用户体验
+                setTimeout(() => {
+                    qrcodeElement.innerHTML = '';
+                    
+                    // 使用正确的 QRCode 库 API
+                    if (qrcode) {
+                        qrcode.clear();
+                    }
+                    
+                    qrcode = new QRCode(qrcodeElement, {
+                        text: content,
+                        width: size,
+                        height: size,
+                        colorDark: color,
+                        colorLight: background,
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                    
+                    // 启用下载按钮
+                    document.querySelector('.preview-section .action-button').disabled = false;
+                }, 300);
+            } else {
+                qrcodeElement.innerHTML = '<div style="color: var(--secondary-text); text-align: center;">请输入内容生成二维码</div>';
+                // 禁用下载按钮
+                document.querySelector('.preview-section .action-button').disabled = true;
+            }
+        }
+
+        function downloadQRCode() {
+            const canvas = document.querySelector('#qrcode canvas');
+            if (canvas) {
+                const link = document.createElement('a');
+                link.download = 'qrcode.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            } else {
+                alert('请先生成二维码');
+            }
+        }
+
+        // 初始化主题和表单验证
+        document.addEventListener('DOMContentLoaded', function() {
+            initTheme();
+            
+            // 监听主题切换按钮点击事件
+            themeToggle.addEventListener('click', toggleTheme);
+            
+            // 监听系统主题偏好变化
+            prefersDarkScheme.addEventListener('change', (e) => {
+                // 只有在用户没有手动设置主题的情况下，才跟随系统变化
+                if (!localStorage.getItem('ytools-theme')) {
+                    const newTheme = e.matches ? 'dark' : 'light';
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                    updateThemeIcon(newTheme);
+                    
+                    // 如果已经生成过二维码，则重新生成
+                    if (document.querySelector('#qrcode canvas')) {
+                        generateQRCode();
+                    }
+                }
+            });
+            
+            // 设置初始按钮状态
+            validateInput();
+            document.querySelector('.preview-section .action-button').disabled = true;
+            
+            // 设置初始提示信息
+            document.getElementById('qrcode').innerHTML = '<div style="color: var(--secondary-text); text-align: center;">请输入内容并点击生成按钮</div>';
+            
+            // 给生成按钮添加点击事件
+            generateButton.addEventListener('click', function() {
+                if (validateInput()) {
+                    generateQRCode();
+                }
+            });
+        });
+
+        // 修改验证输入的事件，不再自动生成二维码
+        document.getElementById('qrContent').addEventListener('input', validateInput);
+        document.getElementById('qrSize').addEventListener('input', function() {
+            // 如果已经有二维码，则更新
+            if (document.querySelector('#qrcode canvas') && validateInput()) {
+                generateQRCode();
+            }
+        });
+        document.getElementById('qrColor').addEventListener('input', function() {
+            if (document.querySelector('#qrcode canvas') && validateInput()) {
+                generateQRCode();
+            }
+        });
+        document.getElementById('qrBackground').addEventListener('input', function() {
+            if (document.querySelector('#qrcode canvas') && validateInput()) {
+                generateQRCode();
+            }
+        });
+
+        // 添加键盘回车键支持
+        document.getElementById('qrContent').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && validateInput()) {
+                generateQRCode();
+            }
+        });
+    </script>
+</body>
+</html>
